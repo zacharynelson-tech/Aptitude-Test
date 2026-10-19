@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Career Path Finder: Architecture Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #E9EEEC;
+    --sheet: #FAFBFA;
+    --ink: #1B2630;
+    --muted: #4F5D68;
+    --line: #B4C0C8;
+    --grid: rgba(110, 160, 195, 0.16);
+    --accent: #2446A6;
+    --on-accent: #FFFFFF;
+    --sel: #E4EAF8;
+    --hat: #F2B705;
+    --on-hat: #2E2300;
+    --head: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0E151C;
+      --sheet: #151F28;
+      --ink: #E6ECF0;
+      --muted: #A0AEB9;
+      --line: #35454F;
+      --grid: rgba(100, 150, 190, 0.12);
+      --accent: #7FA2FF;
+      --on-accent: #0A1224;
+      --sel: #1D2B45;
+      --hat: #F2B705;
+      --on-hat: #2E2300;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E151C;
+    --sheet: #151F28;
+    --ink: #E6ECF0;
+    --muted: #A0AEB9;
+    --line: #35454F;
+    --grid: rgba(100, 150, 190, 0.12);
+    --accent: #7FA2FF;
+    --on-accent: #0A1224;
+    --sel: #1D2B45;
+    --hat: #F2B705;
+    --on-hat: #2E2300;
+    color-scheme: dark;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    padding: 22px 16px 40px;
+  }
+  .sheet {
+    max-width: 780px;
+    margin: 10px auto;
+    background: var(--sheet);
+    border: 2px solid var(--ink);
+    outline: 1px solid var(--ink);
+    outline-offset: 5px;
+  }
+  .sheet-body { padding: clamp(22px, 5vw, 48px); }
+  h1, h2, h3 { font-family: var(--head); font-weight: 700; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(2rem, 7vw, 3.1rem); }
+  h2 { font-size: clamp(1.4rem, 4.2vw, 1.85rem); }
+  h3 { font-size: 1.2rem; }
+  p { margin: 0 0 1em; max-width: 62ch; }
+  .muted { color: var(--muted); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  [tabindex="-1"]:focus { outline: none; }
+
+  .btn {
+    font: inherit; font-weight: 600;
+    background: var(--accent); color: var(--on-accent);
+    border: 2px solid var(--accent); border-radius: 2px;
+    padding: 12px 22px; cursor: pointer; min-height: 48px;
+  }
+  .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover:not([disabled]) { border-color: var(--ink); }
+
+  .field { display: block; margin: 22px 0 28px; max-width: 340px; }
+  .field span { display: block; font-weight: 600; margin-bottom: 6px; }
+  .field input {
+    font: inherit; width: 100%; padding: 11px 12px;
+    background: var(--sheet); color: var(--ink);
+    border: 1.5px solid var(--ink); border-radius: 2px;
+  }
+
+  .parts { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .parts li { padding: 14px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 120px 1fr; gap: 12px; }
+  .parts b { font-family: var(--head); }
+  @media (max-width: 520px) { .parts li { grid-template-columns: 1fr; gap: 2px; } }
+
+  /* Question screen */
+  .q { margin: 0 0 26px; }
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; gap: 14px; align-items: flex-start; text-align: left;
+    font: inherit; color: var(--ink); background: transparent;
+    border: 1.5px solid var(--line); border-radius: 2px;
+    padding: 14px 16px; cursor: pointer; width: 100%;
+  }
+  .opt:hover { border-color: var(--ink); }
+  .opt .key {
+    flex: 0 0 28px; height: 28px; display: grid; place-items: center;
+    border: 1.5px solid var(--ink); font-weight: 600; font-size: 0.85rem;
+  }
+  .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--sel); }
+  .opt[aria-pressed="true"] .key { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+  .scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .scale .opt { justify-content: center; align-items: center; padding: 18px 0; font-family: var(--head); font-size: 1.4rem; font-weight: 700; }
+  .scale-caps { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; gap: 12px; }
+
+  /* Title block doubles as the progress indicator */
+  .titleblock { border-top: 2px solid var(--ink); }
+  .prog { height: 6px; background: var(--grid); }
+  .prog i { display: block; height: 100%; background: var(--hat); transition: width 0.25s ease; }
+  .tb { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr 1fr; }
+  .tb div { padding: 10px 14px; border-left: 1px solid var(--line); min-width: 0; }
+  .tb div:first-child { border-left: 0; }
+  .tb small { display: block; color: var(--muted); font-size: 0.78rem; line-height: 1.2; }
+  .tb strong { display: block; font-family: var(--head); font-size: 0.98rem; overflow-wrap: anywhere; }
+  @media (max-width: 560px) {
+    .tb { grid-template-columns: 1fr 1fr; }
+    .tb div:nth-child(3) { border-left: 0; }
+    .tb div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  }
+
+  /* Results */
+  .res-section { margin-top: 44px; }
+  .res-section > h2 { margin-bottom: 6px; }
+  .lede { font-size: 1.15rem; }
+  .dim { margin: 18px 0; }
+  .dimh { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .dimh .tag { font-size: 0.85rem; color: var(--muted); font-weight: 500; margin-left: 8px; }
+  .dimh b { font-family: var(--head); font-size: 1.1rem; }
+  .rule { position: relative; height: 16px; border-left: 2px solid var(--ink); border-right: 2px solid var(--ink); }
+  .rule::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+  .fill {
+    position: absolute; left: 0; top: 50%; height: 8px; margin-top: -4px;
+    width: var(--w); background: var(--accent);
+    transform-origin: left center; animation: grow 0.8s ease-out both;
+  }
+  .dim.top .fill { background: var(--hat); }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) { .fill { animation: none; } .prog i { transition: none; } }
+
+  .chip { display: inline-block; background: var(--hat); color: var(--on-hat); font-weight: 600; font-size: 0.85rem; padding: 3px 10px; border-radius: 2px; }
+  .path { border: 1.5px solid var(--line); padding: clamp(18px, 4vw, 28px); margin: 18px 0; }
+  .path.best { border-color: var(--ink); border-width: 2px; }
+  .path-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 8px; }
+  .path h4 { font-family: var(--head); font-size: 1.15rem; margin: 18px 0 8px; }
+  .path ul { margin: 0; padding-left: 1.2em; }
+  .path li { margin-bottom: 8px; max-width: 62ch; }
+  .path li b { font-weight: 600; }
+  .callout { border-left: 4px solid var(--hat); padding: 4px 0 4px 18px; margin: 22px 0; }
+  details { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 14px 0; margin-top: 30px; }
+  summary { cursor: pointer; font-family: var(--head); font-weight: 700; font-size: 1.1rem; }
+  .rev { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
+  .rev p { margin-bottom: 6px; }
+  .right { color: var(--accent); font-weight: 600; }
+  .fine { font-size: 0.92rem; color: var(--muted); margin-top: 34px; }
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Content ---------- */
+  var APT = [
+    { dim: "math", q: "A floor plan is drawn at 1/4\" = 1'-0\". A wall measures 3 1/2\" on the drawing. How long is the real wall?",
+      options: ["10 feet", "12 feet", "14 feet", "16 feet"], answer: 2,
+      why: "Each 1/4\" is 1 foot, and 3 1/2\" holds 14 quarter-inches. The wall is 14 feet long." },
+    { dim: "math", q: "A room is 12 ft by 15 ft. Flooring costs $3.50 per square foot. What will the flooring cost?",
+      options: ["$180", "$540", "$945", "$630"], answer: 3,
+      why: "Area is 12 \u00d7 15 = 180 sq ft. Then 180 \u00d7 $3.50 = $630." },
+    { dim: "math", q: "A concrete slab is 10 ft long, 12 ft wide, and 4 inches thick. About how many cubic yards of concrete are needed? (1 cubic yard = 27 cubic feet)",
+      options: ["1.5", "1.0", "3.0", "4.4"], answer: 0,
+      why: "4 inches is 1/3 foot. Volume is 10 \u00d7 12 \u00d7 1/3 = 40 cubic feet, and 40 \u00f7 27 is about 1.5 cubic yards." },
+    { dim: "math", q: "A carpenter checks that a corner is square by marking 6 ft along one wall and 8 ft along the other. What should the diagonal between the marks measure?",
+      options: ["9 ft", "12 ft", "10 ft", "14 ft"], answer: 2,
+      why: "For a right angle, 6\u00b2 + 8\u00b2 = 100, and the square root of 100 is 10 ft." },
+    { dim: "spatial", q: "A solid cube is painted on all six faces, then cut into 27 equal small cubes (3 \u00d7 3 \u00d7 3). How many small cubes have exactly two painted faces?",
+      options: ["12", "8", "6", "1"], answer: 0,
+      why: "Corner cubes have three painted faces. The cube in the middle of each edge has two. A cube has 12 edges, so there are 12." },
+    { dim: "spatial", q: "You look straight down at a pyramid with a square base. What do you see?",
+      options: ["A plain square", "A square with lines running from each corner to the center", "A triangle", "A circle with a dot in the middle"], answer: 1,
+      why: "From above, the four sloped faces meet at the tip. The edges show as lines from each corner to the center of the square." },
+    { dim: "reasoning", q: "A beam rests on two supports, Left and Right. A 100 lb load sits one quarter of the way along the beam from the Left support. Which statement is true?",
+      options: ["Both supports carry 50 lb", "Right carries about 75 lb and Left about 25 lb", "Left carries about 75 lb and Right about 25 lb", "They are equal if the beam is steel"], answer: 2,
+      why: "The closer a load is to a support, the more of it that support carries. At one quarter of the span, Left takes about 75 lb." },
+    { dim: "reasoning", q: "Every load-bearing wall must appear on the structural plan. Wall W does not appear on the structural plan. Which statement must be true?",
+      options: ["Wall W is load-bearing", "Wall W is not load-bearing", "Wall W should be removed", "The structural plan is incomplete"], answer: 1,
+      why: "If W were load-bearing, it would have to be on the plan. It isn\u2019t, so it can\u2019t be load-bearing. The other choices say more than the statements prove." },
+    { dim: "reasoning", q: "A staircase must climb 111 inches. A typical home code limits each riser to 7.75 inches at most. What is the fewest number of risers you can use?",
+      options: ["14", "16", "15", "12"], answer: 2,
+      why: "111 \u00f7 7.75 is about 14.3, so you can\u2019t stop at 14 (each riser would be about 7.93 inches, too tall). You need 15 risers of 7.4 inches each." }
+  ];
+
+  var LK = [
+    { dim: "build", q: "I enjoy building or fixing things with my hands." },
+    { dim: "build", q: "I\u2019d rather be on a job site than behind a desk all day." },
+    { dim: "design", q: "I like sketching or designing spaces and objects." },
+    { dim: "design", q: "I notice how buildings and rooms look, feel, and flow." },
+    { dim: "analyze", q: "I enjoy solving tough math or technical problems." },
+    { dim: "analyze", q: "I like figuring out why something works or fails." },
+    { dim: "lead", q: "I like leading a team and organizing a project." },
+    { dim: "lead", q: "I\u2019m comfortable talking with clients, officials, or strangers." },
+    { dim: "structure", q: "I do well with clear rules, schedules, and a chain of command." },
+    { dim: "structure", q: "I enjoy physical challenges and working outdoors." },
+    { dim: "indep", q: "I\u2019d like to run my own business someday." },
+    { dim: "indep", q: "I like having the freedom to decide how I get my work done." },
+    { dim: "academic", q: "I enjoy reading, research, and classroom learning." },
+    { dim: "academic", q: "I\u2019m willing to keep studying for four or more years after high school." },
+    { dim: "prefCollege", q: "A four-year degree or higher matters for the career I want." },
+    { dim: "prefCollege", q: "I\u2019m excited about the college experience." },
+    { dim: "prefWork", q: "I want to start earning a real paycheck soon after I graduate." },
+    { dim: "prefWork", q: "I learn best by doing the job, not by sitting in a lecture." },
+    { dim: "prefMil", q: "I\u2019m interested in serving my country." },
+    { dim: "prefMil", q: "I\u2019d like paid training and benefits, and I\u2019m open to moving or traveling for work." }
+  ];
+
+  var APT_LABEL = { spatial: "Spatial visualization", math: "Math and measurement", reasoning: "Technical reasoning" };
+  var INT_LABEL = {
+    build: "Hands-on building", design: "Design and creativity", analyze: "Analysis and problem-solving",
+    lead: "Leading and communicating", structure: "Structure and physical challenge",
+    indep: "Independence and entrepreneurship", academic: "Research and academic study"
+  };
+  var GROW = {
+    spatial: "Practice sketching everyday objects from the top, front, and side, and build small models. Spatial skill grows quickly with practice.",
+    math: "Practice scale conversions, area, and volume with real plans. Estimators, drafters, and engineers use these every day.",
+    reasoning: "Work through load-path problems and if-then logic puzzles. Ask your teacher why a structure stands up, not just that it does."
+  };
+
+  var PATHS = {
+    college: {
+      name: "College or university",
+      intro: "You invest time in school first, which opens licensed and specialist roles such as architect, engineer, or planner.",
+      careers: [
+        { t: "Architect", d: "Designs buildings from first sketch to construction. Usually needs an accredited professional degree, supervised experience, and licensing exams.", w: { design: 1, spatial: 1, academic: 0.8, analyze: 0.5 } },
+        { t: "Structural or civil engineer", d: "Calculates how buildings, bridges, and roads carry loads. Usually needs a bachelor\u2019s degree in engineering.", w: { analyze: 1, math: 1, reasoning: 0.8, academic: 0.7 } },
+        { t: "Urban planner or landscape architect", d: "Shapes neighborhoods, parks, and public spaces. Typically needs a bachelor\u2019s or master\u2019s degree.", w: { design: 0.8, lead: 0.6, academic: 0.7, spatial: 0.6 } },
+        { t: "Construction manager (degree route)", d: "Runs budgets, schedules, and crews on large projects.", w: { lead: 1, build: 0.6, math: 0.6, academic: 0.5 } },
+        { t: "Interior or exhibit designer", d: "Plans how interior spaces look, flow, and function.", w: { design: 1, spatial: 0.7, lead: 0.3 } }
+      ],
+      steps: [
+        "Build a portfolio of your 8 to 12 best drawings, models, and sketches.",
+        "Look for architecture programs accredited by the National Architectural Accrediting Board (NAAB). That is the most direct route to licensure.",
+        "Ask your counselor about dual enrollment, SAT/ACT dates, and the FAFSA, which opens in the fall of senior year."
+      ]
+    },
+    workforce: {
+      name: "Straight into the workforce",
+      intro: "You start earning and building experience right away through jobs, apprenticeships, certificates, or a two-year degree.",
+      careers: [
+        { t: "Architectural drafter or CAD/BIM technician", d: "Turns designs into precise drawings in AutoCAD or Revit. Often requires a certificate or associate degree.", w: { spatial: 1, design: 0.7, analyze: 0.5, math: 0.5 } },
+        { t: "Skilled-trades apprentice (carpenter, electrician, and more)", d: "Earn a wage while you learn through a registered apprenticeship.", w: { build: 1, spatial: 0.5, structure: 0.3 } },
+        { t: "Cost estimator or project coordinator", d: "Prices jobs, orders materials, and keeps schedules on track.", w: { math: 1, analyze: 0.7, lead: 0.4 } },
+        { t: "Building inspector or surveying technician", d: "Checks work against code and measures land. Usually needs experience plus certifications.", w: { analyze: 0.8, reasoning: 0.8, build: 0.4, structure: 0.3 } },
+        { t: "Contractor or small-business owner", d: "Runs your own crew or firm once you have the experience and licensing.", w: { indep: 1, lead: 0.8, build: 0.6 } }
+      ],
+      steps: [
+        "Look up registered apprenticeships in your area at apprenticeship.gov.",
+        "Earn credentials that employers recognize, such as OSHA 10 and AutoCAD or Revit certification.",
+        "Ask about co-ops, internships, and community-college associate programs you can do while working."
+      ]
+    },
+    military: {
+      name: "Military service",
+      intro: "You get paid training in construction, engineering, and technical fields, plus education benefits you can use later.",
+      careers: [
+        { t: "Construction and engineering specialist", d: "Builds roads, bases, and facilities. Examples include Army engineers, Navy Seabees, and Air Force civil engineering.", w: { build: 1, structure: 1, spatial: 0.5 } },
+        { t: "Surveying, drafting, and mapping specialist", d: "Produces plans, maps, and measurements that support construction and operations.", w: { spatial: 1, math: 0.7, analyze: 0.5, structure: 0.3 } },
+        { t: "Engineering officer (via ROTC or a service academy)", d: "Combines a college degree with leadership of engineering teams.", w: { academic: 1, lead: 0.8, structure: 0.6, analyze: 0.5 } },
+        { t: "Utilities and systems technician", d: "Installs and maintains electrical, plumbing, and heating and cooling systems.", w: { build: 1, reasoning: 0.5, structure: 0.4 } },
+        { t: "Project and logistics leader", d: "Plans how people, equipment, and materials move to get a job done.", w: { lead: 1, structure: 0.8, reasoning: 0.4 } }
+      ],
+      steps: [
+        "Talk with recruiters from more than one branch, bring a parent or counselor, and get promises in writing.",
+        "Ask whether your school offers the ASVAB. Your scores affect which jobs you qualify for.",
+        "Ask about the GI Bill, ROTC, and service academies as ways to pair service with a degree."
+      ]
+    }
+  };
+
+  var MIXES = [
+    "Start with an apprenticeship or a job, then take evening or online classes toward a degree, sometimes with employer tuition help.",
+    "Spend two years at community college, then transfer to a four-year architecture or construction management program.",
+    "Serve first, then use education benefits like the GI Bill for college. ROTC and the service academies combine a degree with service."
+  ];
+
+  /* ---------- State ---------- */
+  var app = document.getElementById("app");
+  var state = { screen: "intro", name: "", i: 0, steps: [], answers: [] };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function shuffle(a) {
+    var b = a.slice();
+    for (var i = b.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = b[i]; b[i] = b[j]; b[j] = t;
+    }
+    return b;
+  }
+
+  function begin() {
+    var apt = APT.map(function (q) { return Object.assign({ type: "mc" }, q); });
+    var lk = shuffle(LK).map(function (q) { return Object.assign({ type: "lk" }, q); });
+    state.steps = apt.concat(lk);
+    state.answers = state.steps.map(function () { return null; });
+    state.i = 0;
+    state.screen = "test";
+    render();
+  }
+
+  /* ---------- Screens ---------- */
+  function titleBlock(section, sheetText, pct) {
+    return '<div class="titleblock">' +
+      '<div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="tb">' +
+        '<div><small>Project</small><strong>Career path finder</strong></div>' +
+        '<div><small>Section</small><strong>' + esc(section) + '</strong></div>' +
+        '<div><small>Question</small><strong>' + esc(sheetText) + '</strong></div>' +
+        '<div><small>Student</small><strong>' + (state.name ? esc(state.name) : "Anonymous") + '</strong></div>' +
+      '</div></div>';
+  }
+
+  function renderIntro() {
+    app.innerHTML =
+      '<div class="sheet"><div class="sheet-body">' +
+        '<h1 tabindex="-1" id="focus">Where could your skills take you?</h1>' +
+        '<p class="lede" style="margin-top:18px">This takes about 10 minutes. You\u2019ll get a profile of what you\u2019re good at, what you enjoy, and how well three paths fit you: college, going straight into the workforce, and military service.</p>' +
+        '<ul class="parts">' +
+          '<li><b>Skills check</b><span>9 questions on scale, measurement, spatial thinking, and structures. These have right answers.</span></li>' +
+          '<li><b>Interests and goals</b><span>20 statements. Rate how much each one sounds like you. There are no wrong answers.</span></li>' +
+          '<li><b>Your results</b><span>Strengths, best-fit paths, sample careers, and next steps you can take now.</span></li>' +
+        '</ul>' +
+        '<label class="field"><span>Your first name (optional)</span><input id="name" type="text" maxlength="24" autocomplete="off" value="' + esc(state.name) + '"></label>' +
+        '<button class="btn" id="start">Start</button>' +
+        '<p class="fine">Your answers stay on this screen. Nothing is saved or sent anywhere.</p>' +
+      '</div>' + titleBlock("Introduction", "Not started", 0) + '</div>';
+  }
+
+  function renderTest() {
+    var s = state.steps[state.i];
+    var n = state.i + 1, total = state.steps.length;
+    var a = state.answers[state.i];
+    var section = s.type === "mc" ? "Skills check" : "Interests and goals";
+    var body = '<h2 class="q" tabindex="-1" id="focus">' + esc(s.q) + '</h2>';
+
+    if (s.type === "mc") {
+      body += '<div class="opts">' + s.options.map(function (o, k) {
+        return '<button class="opt" data-pick="' + k + '" aria-pressed="' + (a === k) + '"><span class="key">' + "ABCD"[k] + '</span><span>' + esc(o) + '</span></button>';
+      }).join("") + '</div>';
+    } else {
+      body += '<p class="muted" style="margin-top:-12px">How much does this sound like you?</p>' +
+        '<div class="scale" role="group" aria-label="Rating from 1 to 5">' +
+        [1, 2, 3, 4, 5].map(function (v) {
+          return '<button class="opt" data-pick="' + v + '" aria-pressed="' + (a === v) + '" aria-label="' + v + ' of 5">' + v + '</button>';
+        }).join("") + '</div>' +
+        '<div class="scale-caps"><span>Not like me</span><span>Just like me</span></div>';
+    }
+
+    body += '<div class="nav"><button class="btn ghost" id="back"' + (state.i === 0 ? " disabled" : "") + '>Back</button>' +
+      '<button class="btn" id="next"' + (a === null ? " disabled" : "") + '>' + (n === total ? "See my results" : "Next") + '</button></div>';
+
+    app.innerHTML = '<div class="sheet"><div class="sheet-body">' + body + '</div>' +
+      titleBlock(section, n + " of " + total, Math.round((state.i / total) * 100)) + '</div>';
+  }
+
+  function compute() {
+    var apt = { spatial: [0, 0], math: [0, 0], reasoning: [0, 0] };
+    var lk = {};
+    state.steps.forEach(function (s, idx) {
+      var a = state.answers[idx];
+      if (s.type === "mc") { apt[s.dim][1]++; if (a === s.answer) apt[s.dim][0]++; }
+      else { (lk[s.dim] = lk[s.dim] || []).push(a); }
+    });
+    var S = {}, aptTotal = 0, aptCount = 0;
+    Object.keys(apt).forEach(function (k) {
+      S[k] = Math.round((apt[k][0] / apt[k][1]) * 100);
+      aptTotal += apt[k][0]; aptCount += apt[k][1];
+    });
+    var aptAll = (aptTotal / aptCount) * 100;
+    Object.keys(lk).forEach(function (k) {
+      var avg = lk[k].reduce(function (x, y) { return x + y; }, 0) / lk[k].length;
+      S[k] = Math.round(((avg - 1) / 4) * 100);
+    });
+    var fit = {
+      college: 0.35 * S.prefCollege + 0.25 * S.academic + 0.15 * S.analyze + 0.10 * S.design + 0.15 * aptAll,
+      workforce: 0.35 * S.prefWork + 0.25 * S.build + 0.15 * S.indep + 0.10 * S.lead + 0.15 * S.math,
+      military: 0.35 * S.prefMil + 0.25 * S.structure + 0.15 * S.build + 0.10 * S.lead + 0.15 * S.reasoning
+    };
+    Object.keys(fit).forEach(function (k) { fit[k] = Math.round(fit[k]); });
+    return { S: S, apt: apt, fit: fit };
+  }
+
+  function bar(label, pct, extra, top) {
+    return '<div class="dim' + (top ? " top" : "") + '"><div class="dimh"><span>' + esc(label) + (extra ? '<span class="tag">' + esc(extra) + '</span>' : "") +
+      '</span><b>' + pct + '%</b></div><div class="rule"><span class="fill" style="--w:' + pct + '%"></span></div></div>';
+  }
+  function fitLabel(p) { return p >= 70 ? "Strong fit" : p >= 50 ? "Possible fit" : "Less aligned right now"; }
+  function aptLabel(p) { return p >= 75 ? "Strength" : p >= 50 ? "Developing" : "Room to grow"; }
+
+  function careerPick(path, S) {
+    function rel(c) {
+      var tot = 0, wsum = 0;
+      Object.keys(c.w).forEach(function (k) { tot += c.w[k] * S[k]; wsum += c.w[k]; });
+      return tot / wsum;
+    }
+    return path.careers.slice().sort(function (a, b) { return rel(b) - rel(a); }).slice(0, 3);
+  }
+
+  function renderResults() {
+    var r = compute(), S = r.S;
+    var order = Object.keys(r.fit).sort(function (a, b) { return r.fit[b] - r.fit[a]; });
+    var gap = r.fit[order[0]] - r.fit[order[1]];
+
+    var ints = Object.keys(INT_LABEL).sort(function (a, b) { return S[b] - S[a]; });
+    var apts = Object.keys(APT_LABEL).sort(function (a, b) { return S[b] - S[a]; });
+    var weakest = apts[apts.length - 1];
+
+    var headline = gap <= 8
+      ? "Your results point to two paths: " + PATHS[order[0]].name.toLowerCase() + " and " + PATHS[order[1]].name.toLowerCase() + "."
+      : "Your strongest fit is " + PATHS[order[0]].name.toLowerCase() + ".";
+    var who = state.name ? esc(state.name) + ", here" : "Here";
+    var summary = who + " is what stood out. Your top interests are " + INT_LABEL[ints[0]].toLowerCase() + " and " + INT_LABEL[ints[1]].toLowerCase() +
+      ". Your strongest skill area is " + APT_LABEL[apts[0]].toLowerCase() + ".";
+
+    var html = '<div class="sheet"><div class="sheet-body">' +
+      '<h1 tabindex="-1" id="focus">' + headline + '</h1>' +
+      '<p class="lede" style="margin-top:18px">' + summary + '</p>';
+
+    html += '<section class="res-section"><h2>Your skills</h2><p class="muted">From the 9 questions in the skills check.</p>';
+    apts.forEach(function (k, idx) {
+      html += bar(APT_LABEL[k], S[k], aptLabel(S[k]) + " (" + r.apt[k][0] + " of " + r.apt[k][1] + ")", idx === 0);
+    });
+    html += '<div class="callout"><p style="margin:0"><b>Level up next:</b> ' + esc(APT_LABEL[weakest]) + '. ' + esc(GROW[weakest]) + '</p></div></section>';
+
+    html += '<section class="res-section"><h2>Your interests</h2><p class="muted">Your top three are highlighted.</p>';
+    ints.forEach(function (k, idx) { html += bar(INT_LABEL[k], S[k], "", idx < 3); });
+    html += '</section>';
+
+    html += '<section class="res-section"><h2>Your pathways</h2><p class="muted">Fit combines what you enjoy, what you want, and what you showed in the skills check. All three can be good choices.</p>';
+    order.forEach(function (k, idx) {
+      var p = PATHS[k];
+      var careers = careerPick(p, S);
+      html += '<article class="path' + (idx === 0 ? " best" : "") + '">' +
+        '<div class="path-head"><h3>' + esc(p.name) + '</h3>' + (idx === 0 ? '<span class="chip">Best fit</span>' : "") + '</div>' +
+        bar("Fit", r.fit[k], fitLabel(r.fit[k]), idx === 0) +
+        '<p>' + esc(p.intro) + '</p>' +
+        '<h4>Careers to explore</h4><ul>' + careers.map(function (c) { return '<li><b>' + esc(c.t) + '.</b> ' + esc(c.d) + '</li>'; }).join("") + '</ul>' +
+        '<h4>What you can do now</h4><ul>' + p.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ul>' +
+      '</article>';
+    });
+    html += '</section>';
+
+    html += '<section class="res-section"><h2>You don\u2019t have to pick just one</h2><ul>' +
+      MIXES.map(function (m) { return '<li style="margin-bottom:8px;max-width:62ch">' + esc(m) + '</li>'; }).join("") + '</ul></section>';
+
+    html += '<details><summary>Review the skills questions</summary>';
+    state.steps.forEach(function (s, idx) {
+      if (s.type !== "mc") return;
+      var mine = state.answers[idx];
+      html += '<div class="rev"><p><b>' + esc(s.q) + '</b></p>' +
+        '<p>Your answer: ' + esc(s.options[mine]) + (mine === s.answer ? ' <span class="right">(correct)</span>' : "") + '</p>' +
+        (mine === s.answer ? "" : '<p>Correct answer: <span class="right">' + esc(s.options[s.answer]) + '</span></p>') +
+        '<p class="muted">' + esc(s.why) + '</p></div>';
+    });
+    html += '</details>';
+
+    html += '<p class="fine">This is a starting point for conversation, not a verdict. Interests change and skills grow with practice. Bring your results to your teacher or school counselor and talk through next steps.</p>' +
+      '<button class="btn ghost" id="retake">Retake the assessment</button>' +
+      '</div>' + titleBlock("Results", "Complete", 100) + '</div>';
+
+    app.innerHTML = html;
+  }
+
+  function render() {
+    if (state.screen === "intro") renderIntro();
+    else if (state.screen === "test") renderTest();
+    else renderResults();
+    window.scrollTo(0, 0);
+    var f = document.getElementById("focus");
+    if (f) { try { f.focus({ preventScroll: true }); } catch (e) {} }
+  }
+
+  /* ---------- Events ---------- */
+  app.addEventListener("click", function (e) {
+    var t = e.target.closest("button");
+    if (!t) return;
+    if (t.id === "start") {
+      var inp = document.getElementById("name");
+      state.name = inp ? inp.value.trim() : "";
+      begin();
+    } else if (t.hasAttribute("data-pick")) {
+      state.answers[state.i] = parseInt(t.getAttribute("data-pick"), 10);
+      var btns = app.querySelectorAll("[data-pick]");
+      btns.forEach(function (b) { b.setAttribute("aria-pressed", b === t ? "true" : "false"); });
+      document.getElementById("next").disabled = false;
+    } else if (t.id === "next") {
+      if (state.answers[state.i] === null) return;
+      if (state.i === state.steps.length - 1) { state.screen = "results"; }
+      else { state.i++; }
+      render();
+    } else if (t.id === "back") {
+      if (state.i > 0) { state.i--; render(); }
+    } else if (t.id === "retake") {
+      state.screen = "intro"; render();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
